@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>lambdashare.xyz</title>
+    <script src="/aws-sdk-2.2.21.min.js"></script>
+    <link href="https://cdn.muicss.com/mui-0.2.8/css/mui.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.muicss.com/mui-0.2.8/js/mui.min.js"></script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      html,body,input,textarea,buttons {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004);
+      }
+      header {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 2;
+      }
+      header ul li a {
+        color: #333;
+      }
+      #content-wrapper {
+        padding-top: 120px;
+        min-height: 100%;
+        margin-bottom: -100px;
+        padding-bottom: 100px;
+      }
+      footer {
+        height: 100px;
+        background-color: #eee;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 35px;
+      }
+      .thingshare_appbar {
+        background-color: #E0E0E0;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="mui-appbar mui--z1 thingshare_appbar">
+      <div class="mui-container">
+        <table width="100%">
+          <tr class="mui--appbar-height">
+            <td class="mui--text-title"><img src="/lshare.xyz.png" height="30" alt="LambdaShare.xyz"/></td>
+            <td align="right">
+              <ul class="mui-list--inline">
+                <li><a href="#"></a></li>
+                <li><a href="#"></a></li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </header>
+    <div id="content-wrapper">
+      <div class="mui-container">
+        <div class="mui-row">
+          <div class="mui-col-md-8">
+            <div id="info-holder"></div>
+            <form action="javascript: submitForm()" method="post" enctype="multipart/form-data">
+              File to upload to LambdaShare.xyz: 
+              <div class="mui-textfield"><input name="file" id="file-chooser" type="file"> </div>
+              <br> 
+              <input class="mui-btn mui-btn--primary" type="submit" value="Upload File to LambdaShare.xyz"> 
+            </form>       
+          </div>
+          <div class="mui-col-md-4">
+            LambdaShare.xyz is a simple demonstration of some of the AWS capabilities.
+            <br/>Just upload any file type and it will be stored for 24 hours.
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="mui-container mui--text-center">
+        Made with ♥ for <b>MoR</b>
+      </div>
+    </footer>
+  </body>
+  <script>
+    function guid() {
+      function s4() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }
+      return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    }
+    window.submitForm = function (){
+      document.getElementById('info-holder').innerHTML = "<i>Please wait...</i>"
+      document.getElementsByTagName('form')[0].style.display = 'none'
+      AWS.config.update({
+        accessKeyId: '<your dummy user access key>', 
+        secretAccessKey: '<your dummy user secret key>'
+      });
+      // Configure your region
+      AWS.config.region = 'eu-west-1';
+      var bucket = new AWS.S3({params: {Bucket: 'uploadbucket.thingshared.xyz'}});
+      var fileChooser = document.getElementById('file-chooser');
+      var file = fileChooser.files[0];
+      if (file) {
+        var params = {
+          Key: guid(),
+          ContentType: file.type,
+          Body: file
+        };
+        bucket.upload(params, function (err, data) {
+          if (err) {
+            alert('something went wrong!')
+          } else {
+            console.log(data)
+            document.getElementById('info-holder').innerHTML = "<b>Upload Successfull: </b>" + data.Location.split('/').pop()
+          }
+        });
+      } else {
+        alert('Error please report to: support@boyne.de')
+        window.location.reload()
+      }
+    }
+  </script>
+</html>
